@@ -25,12 +25,19 @@ router.post('/', authMiddleware, upload.single('file'), async (req, res) => {
     const predictions = ["Glioma Tumor", "Meningioma Tumor", "No Tumor", "Pituitary Tumor"];
     const prediction = predictions[Math.floor(Math.random() * predictions.length)];
     const confidence = Math.random() * (0.99 - 0.85) + 0.85; // Random confidence between 85% and 99%
+    const isTumor = !prediction.toLowerCase().includes('no tumor');
+
+    // In a real scenario, your model would generate a processed image (e.g., with a heatmap)
+    // and you would save it and return its URL. For this mock, we'll create a data URL from the original
+    // file buffer to simulate a processed image.
+    const processedImageBase64 = isTumor ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : null;
 
     res.json({
         prediction: prediction,
-        confidence: confidence
+        confidence: confidence,
+        processed_image_url: processedImageBase64,
+        size_metrics: isTumor ? `${(Math.random() * 4 + 1).toFixed(2)}cm x ${(Math.random() * 4 + 1).toFixed(2)}cm` : null,
     });
 });
 
 module.exports = router;
-
